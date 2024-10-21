@@ -1,0 +1,17 @@
+.footer {
+  margin-top: auto;
+  height: 80px;
+  background-color: var(--main-color-dark);
+
+  border-top: 1px solid var(--accessory-color-dark);
+
+  display: flex;
+  text-align: center;
+  align-items: center;
+}
+
+.footer__content {
+  font-size: 0.7em;
+  font-weight: 300;
+  margin: 0 auto;
+}
