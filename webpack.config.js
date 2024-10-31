@@ -16,6 +16,19 @@ module.exports = {
           loader: 'babel-loader', // Используем babel-loader
         },
       },
+      {
+        test: /\.css$/, // Обработка CSS файлов
+        use: ['style-loader', 'css-loader'], // Используем style-loader и css-loader
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg|mp4)$/, // Обработка изображений и видео
+        use: {
+          loader: 'file-loader', // Используем file-loader
+          options: {
+            name: '[path][name].[ext]', // Путь к файлу в выходной директории
+          },
+        },
+      },
     ],
   },
   resolve: {
