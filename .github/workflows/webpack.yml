@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         npm install
-        npm install -g webpack-cli  # Установка webpack-cli
+        npm install -D webpack-cli  # Установка webpack-cli
 
     - name: Build
       run: |
