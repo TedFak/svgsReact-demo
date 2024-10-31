@@ -4,7 +4,7 @@ module.exports = {
   mode: 'development', // Установите режим разработки
   entry: './src/index.js', // Путь к вашему главному файлу
   output: {
-    path: path.resolve(__dirname, 'dist'), // Путь к выходным файлам
+    path: path.resolve(__dirname, 'build'), // Путь к выходным файлам
     filename: 'bundle.js', // Имя выходного файла
   },
   module: {
