@@ -14,7 +14,7 @@
     "webpack": "^5.95.0"
   },
   "devDependencies": {
-    "babel-loader": "^9.1.0",  // или актуальная версия
+    "babel-loader": "^9.1.0",
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/preset-react": "^7.20.0",
