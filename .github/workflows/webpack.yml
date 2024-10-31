@@ -42,12 +42,12 @@ jobs:
       run: |
         git clone https://github.com/TedFak/svgsmsc-site.git svgsmsc-site
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
     - name: Copy files to deployment repository
       run: |
-        rm -rf svgsmsc-site/*  # Очистим старые файлы в репозитории
-        cp -R build/* svgsmsc-site/  # Копируем сборку в репозиторий
+        rm -rf svgsmsc-site/*
+        cp -R build/* svgsmsc-site/
 
     # Шаг 6: Коммит и пуш изменений в репозиторий для деплоя
     - name: Commit and push changes
@@ -60,4 +60,4 @@ jobs:
         git push origin main
       env:
         # Добавляем секрет с токеном доступа
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
