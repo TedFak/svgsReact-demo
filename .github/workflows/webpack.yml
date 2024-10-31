@@ -37,6 +37,7 @@ jobs:
       run: |
         npm install
         npx webpack
+        npm run build
         
     - name: Clone the deployment repository
       run: |
