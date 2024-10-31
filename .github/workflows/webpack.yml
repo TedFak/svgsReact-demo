@@ -40,7 +40,7 @@ jobs:
         
     - name: Clone the deployment repository
       run: |
-        git clone https://github.com/tedfak/svgsmsc-site.git svgsmsc-site
+        git clone https://github.com/TedFak/svgsmsc-site.git svgsmsc-site
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
