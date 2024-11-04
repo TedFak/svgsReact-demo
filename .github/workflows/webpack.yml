@@ -38,27 +38,53 @@ jobs:
         npm install
         npx webpack
         npm run build
+
+    - name: Set up SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
         
-    - name: Clone the deployment repository
-      run: |
-        git clone https://x-access-token:${GITHUB_TOKEN}@github.com/TedFak/svgsmsc-site.git svgsmsc-site
+    - name: Copy build directory to remote server
       env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-    - name: Copy files to deployment repository
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
       run: |
-        rm -rf svgsmsc-site/*
-        cp -R build/* svgsmsc-site/
+        ls -lha
+        scp -r ./build ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/
 
-    # Шаг 6: Коммит и пуш изменений в репозиторий для деплоя
-    - name: Commit and push changes
-      run: |
-        cd svgsmsc-site
-        git config --global user.email "your-email@example.com"
-        git config --global user.name "your-username"
-        git add .
-        git commit -m "Automated deployment"
-        git push origin main
+        
+    - name: Build site
       env:
-        # Добавляем секрет с токеном доступа
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      run: |
+        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
+          cd /home/${{ secrets.REMOTE_USER }}/
+          ls -lha
+          if ! command -v docker &> /dev/null
+          then
+            echo "Docker не найден, установка Docker..."
+            sudo apt-get update
+            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+          else
+            echo "Docker уже установлен."
+          fi
+          sudo systemctl status docker || sudo systemctl start docker
+          docker build -t svgsmsc-site .
+          if [ $(docker ps -aq -f name=svgsmsc-site) ]; then
+            docker stop svgsmsc-site
+            docker rm svgsmsc-site
+          fi
+          docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html --name svgsmsc-site svgsmsc-site
+          docker exec -it svgsmsc-site certbot --nginx -d svgsmsc.com -d www.svgsmsc.com
+        EOF
