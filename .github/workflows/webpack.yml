@@ -53,8 +53,8 @@ jobs:
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
       run: |
-        scp -r ./build ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/build/
-        scp -r ./docker ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/docker/
+        scp -r ./build ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/build
+        scp -r ./docker ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/docker
         
     - name: Build site
       env:
