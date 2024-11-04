@@ -53,7 +53,7 @@ jobs:
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
       run: |
-        scp -r ./build ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/
+        scp -r ./build ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/build
         scp -r ./docker ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/docker/
         
     - name: Build site
@@ -86,5 +86,11 @@ jobs:
             docker rm svgsmsc-site
           fi
           docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html --name svgsmsc-site svgsmsc-site
-          docker exec svgsmsc-site certbot --nginx -d svgsmsc.com -d www.svgsmsc.com
+          docker exec svgsmsc-site certbot certonly --standalone -d svgsmsc.com -d www.svgsmsc.com --non-interactive --agree-tos -m artem2998@live.com
+          docker exec svgsmsc-site nginx -c /etc/nginx/nginx.conf -t
+          docker exec svgsmsc-site nginx
+          docker exec svgsmsc-site nginx -s stop
+          docker exec svgsmsc-site nginx
+          docker exec svgsmsc-site nginx -s reload
+        
         EOF
