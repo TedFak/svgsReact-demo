@@ -46,7 +46,6 @@ jobs:
         mkdir -p ~/.ssh
         echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        cat ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
         
     - name: Copy build directory to remote server
@@ -81,6 +80,7 @@ jobs:
             echo "Docker уже установлен."
           fi
           sudo systemctl status docker || sudo systemctl start docker
+          ls -lha
           docker build -t svgsmsc-site .
           if [ $(docker ps -aq -f name=svgsmsc-site) ]; then
             docker stop svgsmsc-site
