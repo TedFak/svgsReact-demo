@@ -86,6 +86,7 @@ jobs:
             docker rm svgsmsc-site
           fi
           docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html --name svgsmsc-site svgsmsc-site
+          docker exec svgsmsc-site nginx -s stop
           docker exec svgsmsc-site certbot certonly --standalone -d svgsmsc.com -d www.svgsmsc.com --non-interactive --agree-tos -m artem2998@live.com
           docker exec svgsmsc-site nginx -c /etc/nginx/nginx.conf -t
           docker exec svgsmsc-site nginx
