@@ -63,7 +63,6 @@ jobs:
       run: |
         ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
           cd /home/${{ secrets.REMOTE_USER }}/
-          ls -lha
           if ! command -v docker &> /dev/null
           then
             echo "Docker не найден, установка Docker..."
@@ -80,12 +79,13 @@ jobs:
           fi
           sudo systemctl status docker || sudo systemctl start docker
           cd /home/${{ secrets.REMOTE_USER }}/docker/
+          openssl req -x509 -newkey rsa:4096 -keyout ./privkey.pem -out ./fullchain.pem -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Company/CN=svgsmsc.com"
           docker build -t svgsmsc-site .
           if [ $(docker ps -aq -f name=svgsmsc-site) ]; then
             docker stop svgsmsc-site
             docker rm svgsmsc-site
           fi
-          docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html --name svgsmsc-site svgsmsc-site
+          docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html -v /etc/letsencrypt/live/svgsmsc.com/:/etc/letsencrypt/live/svgsmsc.com/ --name svgsmsc-site svgsmsc-site
           docker exec svgsmsc-site nginx -s stop
           docker exec svgsmsc-site certbot certonly --standalone -d svgsmsc.com -d www.svgsmsc.com --non-interactive --agree-tos -m artem2998@live.com
           docker exec svgsmsc-site nginx -c /etc/nginx/nginx.conf -t

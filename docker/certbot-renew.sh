@@ -1,5 +1,5 @@
 #!/bin/sh
 while :; do
-    certbot renew --nginx --quiet
+    sudo certbot renew --dns-cloudflare --dns-cloudflare-credentials cloudflare.ini
     sleep 12h
 done
