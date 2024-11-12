@@ -42,6 +42,7 @@ jobs:
     - name: Set up SSH
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
       run: |
         mkdir -p ~/.ssh
         echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
@@ -60,6 +61,7 @@ jobs:
       env:
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        TOKEN_PATH: ${{ secrets.TOKEN_PATH }}
       run: |
         ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
           cd /home/${{ secrets.REMOTE_USER }}/
@@ -79,19 +81,14 @@ jobs:
           fi
           sudo systemctl status docker || sudo systemctl start docker
           cd /home/${{ secrets.REMOTE_USER }}/docker/
-          openssl req -x509 -newkey rsa:4096 -keyout ./privkey.pem -out ./fullchain.pem -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Company/CN=svgsmsc.com"
+          apt update && apt upgrade -y && apt install certbot python3-certbot-dns-cloudflare -y
+          sudo certbot certonly --dns-cloudflare --dns-cloudflare-credentials ${{ secrets.TOKEN_PATH }}toketcloudflare.ini -d svgsmsc.com -d www.svgsmsc.com --staging --non-interactive --agree-tos -m artem2998@live.com --debug
           docker build -t svgsmsc-site .
           if [ $(docker ps -aq -f name=svgsmsc-site) ]; then
             docker stop svgsmsc-site
             docker rm svgsmsc-site
           fi
-          docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html -v /etc/letsencrypt/live/svgsmsc.com/:/etc/letsencrypt/live/svgsmsc.com/ --name svgsmsc-site svgsmsc-site
-          docker exec svgsmsc-site nginx -s stop
-          docker exec svgsmsc-site certbot certonly --standalone -d svgsmsc.com -d www.svgsmsc.com --non-interactive --agree-tos -m artem2998@live.com
-          docker exec svgsmsc-site nginx -c /etc/nginx/nginx.conf -t
-          docker exec svgsmsc-site nginx
-          docker exec svgsmsc-site nginx -s stop
-          docker exec svgsmsc-site nginx
+          docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html -v /etc/letsencrypt/live/svgsmsc.com:/etc/letsencrypt/live/svgsmsc.com --name svgsmsc-site svgsmsc-site
           docker exec svgsmsc-site nginx -s reload
         
         EOF
