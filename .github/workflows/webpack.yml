@@ -82,9 +82,10 @@ jobs:
             echo "Docker уже установлен. "
           fi
           sudo systemctl status docker || sudo systemctl start docker
-          cd /home/${{ secrets.REMOTE_USER }}/docker/
+          cd /home/${{ secrets.REMOTE_USER }}/
           apt update && apt upgrade -y && apt install certbot python3-certbot-dns-cloudflare -y
           sudo certbot certonly --dns-cloudflare --dns-cloudflare-credentials ${{ secrets.TOKEN_PATH }}toketcloudflare.ini -d svgsmsc.com -d www.svgsmsc.com --staging --non-interactive --agree-tos -m artem2998@live.com --debug
+          cd /home/${{ secrets.REMOTE_USER }}/docker/
           docker build -t svgsmsc-site .
           if [ $(docker ps -aq -f name=svgsmsc-site) ]; then
             docker stop svgsmsc-site
