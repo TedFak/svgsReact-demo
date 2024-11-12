@@ -56,8 +56,8 @@ jobs:
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
       run: |
         ls -lha
-        scp -r ./build ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/build
-        scp -r ./docker ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/docker
+        scp -r ./build ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/
+        scp -r ./docker ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/
         
     - name: Build site
       env:
