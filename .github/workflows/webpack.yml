@@ -63,7 +63,7 @@ jobs:
       env:
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        TOKEN_PATH: ${{ secrets.TOKEN_PATH }}
+        SECRET_PATH: ${{ secrets.SECRET_PATH }}
       run: |
         ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
           cd /home/${{ secrets.REMOTE_USER }}/
@@ -82,17 +82,16 @@ jobs:
             echo "Docker уже установлен. "
           fi
           sudo systemctl status docker || sudo systemctl start docker
-          cd /home/${{ secrets.REMOTE_USER }}/
-          apt update && apt upgrade -y && apt install certbot python3-certbot-dns-cloudflare -y
-          sudo certbot certonly --dns-cloudflare --dns-cloudflare-credentials ${{ secrets.TOKEN_PATH }}toketcloudflare.ini -d svgsmsc.com -d www.svgsmsc.com --staging --non-interactive --agree-tos -m artem2998@live.com --debug
-          mv fullchain.pem privkey.pem /home/root/cert/
           cd /home/${{ secrets.REMOTE_USER }}/docker/
           docker build -t svgsmsc-site .
           if [ $(docker ps -aq -f name=svgsmsc-site) ]; then
             docker stop svgsmsc-site
             docker rm svgsmsc-site
           fi
-          docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html -v /home/root/cert/svgsmsc.com:/etc/letsencrypt/live/svgsmsc.com --name svgsmsc-site svgsmsc-site
+          docker run -d -p 80:80 -p 443:443 -v /home/${{ secrets.REMOTE_USER }}/build:/usr/share/nginx/html -v ${{ secrets.SECRET_PATH }}:/etc/letsencrypt/live/svgsmsc.com --name svgsmsc-site svgsmsc-site
+          iptables -D INPUT -p tcp --dport 80 -j DROP
+          iptables -D INPUT -p tcp --dport 443 -j DROP
+          docker network create site_network
+          docker run -d --network site_network -p 80:80 -p 443:443 --name svgsmsc-site svgsmsc-site
           docker exec svgsmsc-site nginx -s reload
-        
         EOF
