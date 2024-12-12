@@ -13,6 +13,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Initialize Git repository
+      run: |
+        git init
+        git remote add origin https://github.com/Mbyod/svgsReact-demo.git
+        git fetch origin
+        git pull origin main
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
