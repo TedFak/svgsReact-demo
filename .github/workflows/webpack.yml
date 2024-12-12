@@ -57,6 +57,13 @@ jobs:
         echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Remove old repo
+      env:
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      run: |
+        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "rm -r /home/${{ secrets.REMOTE_USER }}/build && rm -r /home/${{ secrets.REMOTE_USER }}/docker && exit"
         
     - name: Copy build directory to remote server
       env:
