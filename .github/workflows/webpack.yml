@@ -63,7 +63,10 @@ jobs:
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
       run: |
-        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "rm -r /home/${{ secrets.REMOTE_USER }}/build && rm -r /home/${{ secrets.REMOTE_USER }}/docker && exit"
+        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
+          [ -d /home/${{ secrets.REMOTE_USER }}/build ] && rm -r /home/${{ secrets.REMOTE_USER }}/build || echo 'Build directory does not exist'; \
+          [ -d /home/${{ secrets.REMOTE_USER }}/docker ] && rm -r /home/${{ secrets.REMOTE_USER }}/docker || echo 'Docker directory does not exist'; \
+          exit"
         
     - name: Copy build directory to remote server
       env:
